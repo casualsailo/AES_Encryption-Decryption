@@ -18,8 +18,8 @@ namespace AES_Encryption_Decryption
             var saltBytes = GenerateSalt(32); // Convert.FromBase64String("7tL0JPvjhZ5YHKgC+AUXDhf3FNBSsAIq3zkwXIulbhE=");
             var encryptedFile = Directory.GetCurrentDirectory() + @"\connections.ini";
 
-            var temp = @"[*ProductionSql*\\localhost\database]" + Environment.NewLine;
-            temp += @"[*DevelopmentSql*\\localhost\databaseDev]";
+            var temp = @"[Dev_Connection_String=Driver=SQL Server;Server=\\localhost;UID=admin;PWD=password;Database=development]" + Environment.NewLine;
+            temp += @"[Prod_Connection_String=Driver=SQL Server;Server=\\localhost;UID=admin;PWD=password;Database=production]";
             EncryptStringToFile(encryptedFile, temp, password, saltBytes);
             Console.WriteLine(DecryptFileToString(encryptedFile, password, saltBytes));
         }
@@ -54,7 +54,7 @@ namespace AES_Encryption_Decryption
         {
             byte[] encryptedBytes;
             using (var aesAlg = Aes.Create()) {
-                var key = new Rfc2898DeriveBytes(password, saltBytes);
+                var key = new Rfc2898DeriveBytes(password, saltBytes, 10000, HashAlgorithmName.SHA512);
                 aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);
                 aesAlg.IV = key.GetBytes(aesAlg.BlockSize / 8);
 
@@ -72,7 +72,7 @@ namespace AES_Encryption_Decryption
         {
             byte[] decryptedBytes;
             using (var aesAlg = Aes.Create()) {
-                var key = new Rfc2898DeriveBytes(password, saltBytes);
+                var key = new Rfc2898DeriveBytes(password, saltBytes, 10000, HashAlgorithmName.SHA512);
                 aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);
                 aesAlg.IV = key.GetBytes(aesAlg.BlockSize / 8);
 
